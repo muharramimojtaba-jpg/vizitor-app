@@ -9,6 +9,7 @@
             --primary: #2563eb;
             --primary-dark: #1d4ed8;
             --success: #16a34a;
+            --danger: #dc2626;
             --bg: #f8fafc;
             --card: #ffffff;
             --text: #1e293b;
@@ -16,23 +17,30 @@
             --border: #e2e8f0;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-        body { background: var(--bg); color: var(--text); padding-bottom: 80px; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 90px; }
         header { background: var(--primary); color: white; padding: 16px; text-align: center; font-size: 1.25rem; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .container { padding: 16px; max-width: 600px; margin: 0 auto; }
         .card { background: var(--card); border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid var(--border); }
         .btn { background: var(--primary); color: white; border: none; padding: 12px 16px; border-radius: 8px; font-size: 1rem; font-weight: bold; width: 100%; cursor: pointer; text-align: center; display: inline-block; margin-top: 8px; }
         .btn:active { background: var(--primary-dark); }
         .btn-success { background: var(--success); }
+        .btn-danger { background: var(--danger); }
         .nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px; box-shadow: 0 -2px 5px rgba(0,0,0,0.05); z-index: 1000; }
         .nav-item { text-align: center; color: var(--text-light); font-size: 0.85rem; text-decoration: none; cursor: pointer; flex: 1; }
         .nav-item.active { color: var(--primary); font-weight: bold; }
         input, select, textarea { width: 100%; padding: 10px; margin: 6px 0 12px 0; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; }
         .sync-box { background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px; border-radius: 8px; margin-bottom: 16px; text-align: center; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+        .stat-box { background: white; padding: 12px; border-radius: 8px; border: 1px solid var(--border); text-align: center; }
+        .stat-box h4 { font-size: 0.85rem; color: var(--text-light); }
+        .stat-box p { font-size: 1.5rem; font-weight: bold; color: var(--primary); margin-top: 4px; }
     </style>
 </head>
 <body>
 
-    <header>ویزیتور پرو (نسخه ابری)</header>
+    <header>ویزیتور پرو - سیستم مدیریت هوشمند</header>
 
     <div class="container">
         <!-- بخش همگام‌سازی ابری -->
@@ -41,20 +49,71 @@
             <button class="btn btn-success" onclick="syncWithCloud()">همگام‌سازی ابری اطلاعات</button>
         </div>
 
-        <div id="app-view">
-            <!-- محتوای داینامیک برنامه -->
+        <!-- تب داشبورد -->
+        <div id="tab-home" class="tab-content active">
+            <div class="stat-grid">
+                <div class="stat-box">
+                    <h4>کل مشتریان</h4>
+                    <p id="stat-cust">0</p>
+                </div>
+                <div class="stat-box">
+                    <h4>سرنخ‌های فعال</h4>
+                    <p id="stat-leads">0</p>
+                </div>
+            </div>
             <div class="card">
-                <h3>داشبورد فروش</h3>
-                <p style="color: var(--text-light); margin-top: 8px;">تعداد کل مشتریان: <span id="stat-cust">0</span></p>
-                <p style="color: var(--text-light);">سرنخ‌های فعال: <span id="stat-leads">0</span></p>
+                <h3>دسترسی سریع</h3>
+                <p style="color: var(--text-light); margin-top: 8px; font-size: 0.95rem;">برای مدیریت کامل مشتریان، محصولات و ثبت فروش از منوی پایین استفاده کنید.</p>
+            </div>
+        </div>
+
+        <!-- تب مشتریان -->
+        <div id="tab-customers" class="tab-content">
+            <div class="card">
+                <h3>افزودن مشتری جدید</h3>
+                <input type="text" id="cust-name" placeholder="نام مشتری / فروشگاه">
+                <input type="text" id="cust-phone" placeholder="شماره تماس">
+                <input type="text" id="cust-region" placeholder="منطقه (مثلاً منطقه ۹)">
+                <button class="btn" onclick="addCustomer()">ذخیره مشتری</button>
+            </div>
+            <div class="card">
+                <h3>لیست مشتریان</h3>
+                <div id="customers-list" style="margin-top: 10px; font-size: 0.95rem;"></div>
+            </div>
+        </div>
+
+        <!-- تب محصولات و فروش -->
+        <div id="tab-sales" class="tab-content">
+            <div class="card">
+                <h3>ثبت فروش / سفارش</h3>
+                <select id="sale-customer">
+                    <option value="">انتخاب مشتری...</option>
+                </select>
+                <input type="text" id="sale-product" placeholder="نام محصول (سوسیس/کالباس)">
+                <input type="number" id="sale-amount" placeholder="مبلغ (تومان)">
+                <button class="btn btn-success" onclick="addSale()">ثبت سفارش</button>
+            </div>
+            <div class="card">
+                <h3>گزارش فروش‌ها</h3>
+                <div id="sales-list" style="margin-top: 10px; font-size: 0.95rem;"></div>
+            </div>
+        </div>
+
+        <!-- تب تنظیمات و پشتیبان‌گیری -->
+        <div id="tab-settings" class="tab-content">
+            <div class="card">
+                <h3>مدیریت داده‌ها</h3>
+                <button class="btn" onclick="exportJSON()">دانلود پشتیبان محلی (JSON)</button>
+                <button class="btn btn-danger" onclick="wipeAll()" style="margin-top: 12px;">پاک کردن همه داده‌ها</button>
             </div>
         </div>
     </div>
 
     <nav class="nav">
-        <a class="nav-item active" onclick="switchTab('home')">داشبورد</a>
-        <a class="nav-item" onclick="switchTab('customers')">مشتریان</a>
-        <a class="nav-item" onclick="switchTab('settings')">تنظیمات</a>
+        <a class="nav-item active" onclick="switchTab('home', this)">داشبورد</a>
+        <a class="nav-item" onclick="switchTab('customers', this)">مشتریان</a>
+        <a class="nav-item" onclick="switchTab('sales', this)">فروش</a>
+        <a class="nav-item" onclick="switchTab('settings', this)">تنظیمات</a>
     </nav>
 
     <script>
@@ -66,21 +125,73 @@
             sales: []
         };
 
+        if(!DB.leads) DB.leads = [];
+        if(!DB.sales) DB.sales = [];
+
         function saveLocal() {
             localStorage.setItem('vizitor_db', JSON.stringify(DB));
-            updateStats();
+            renderAll();
         }
 
-        function updateStats() {
+        function renderAll() {
             document.getElementById('stat-cust').innerText = DB.customers.length;
-            document.getElementById('stat-leads').innerText = DB.leads ? DB.leads.length : 0;
+            document.getElementById('stat-leads').innerText = DB.leads.length;
+
+            // لیست مشتریان
+            let custHtml = "";
+            let selectHtml = '<option value="">انتخاب مشتری...</option>';
+            DB.customers.forEach((c, idx) => {
+                custHtml += `<div style="padding: 8px 0; border-bottom: 1px solid #f1f5f9;"><b>${c.name}</b><br><span style="color:var(--text-light)">${c.phone || ''} - ${c.region || ''}</span></div>`;
+                selectHtml += `<option value="${c.name}">${c.name}</option>`;
+            });
+            document.getElementById('customers-list').innerText = DB.customers.length ? "" : "مشتری ثبت نشده است.";
+            if(DB.customers.length) document.getElementById('customers-list').innerHTML = custHtml;
+            document.getElementById('sale-customer').innerHTML = selectHtml;
+
+            // لیست فروش
+            let salesHtml = "";
+            DB.sales.forEach(s => {
+                salesHtml += `<div style="padding: 8px 0; border-bottom: 1px solid #f1f5f9;"><b>${s.customer}</b>: ${s.product} (${s.amount} تومان)</div>`;
+            });
+            document.getElementById('sales-list').innerHTML = salesHtml || "فروشی ثبت نشده است.";
+        }
+
+        function addCustomer() {
+            let name = document.getElementById('cust-name').value.trim();
+            let phone = document.getElementById('cust-phone').value.trim();
+            let region = document.getElementById('cust-region').value.trim();
+            if(!name) { alert("لطفاً نام مشتری را وارد کنید."); return; }
+            DB.customers.push({name, phone, region, created: new Date().toISOString()});
+            saveLocal();
+            document.getElementById('cust-name').value = '';
+            document.getElementById('cust-phone').value = '';
+            document.getElementById('cust-region').value = '';
+            alert("مشتری با موفقیت ثبت شد!");
+        }
+
+        function addSale() {
+            let customer = document.getElementById('sale-customer').value;
+            let product = document.getElementById('sale-product').value.trim();
+            let amount = document.getElementById('sale-amount').value.trim();
+            if(!customer || !product) { alert("لطفاً مشتری و محصول را مشخص کنید."); return; }
+            DB.sales.push({customer, product, amount, date: new Date().toISOString()});
+            saveLocal();
+            document.getElementById('sale-product').value = '';
+            document.getElementById('sale-amount').value = '';
+            alert("فروش با موفقیت ثبت شد!");
+        }
+
+        function switchTab(tabId, el) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+            el.classList.add('active');
         }
 
         async function syncWithCloud() {
-            alert("در حال اتصال به گوگل‌شیت...");
+            alert("در حال همگام‌سازی ابری...");
             try {
-                // ارسال داده به گوگل‌شیت یا دریافت آن
-                let response = await fetch(SCRIPT_URL, {
+                await fetch(SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
@@ -88,16 +199,29 @@
                 });
                 alert("همگام‌سازی با موفقیت انجام شد!");
             } catch (e) {
-                alert("خطا در همگام‌سازی: " + e.message);
+                alert("خطا در ارتباط: " + e.message);
             }
         }
 
-        function switchTab(tab) {
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            event.target.classList.add('active');
+        function exportJSON() {
+            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(DB));
+            let dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", "vizitor-backup.json");
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
         }
 
-        updateStats();
+        function wipeAll() {
+            if(confirm("آیا مطمئن هستید که می‌خواهید همه داده‌ها را پاک کنید؟")) {
+                DB = { customers: [], leads: [], sales: [] };
+                saveLocal();
+                alert("داده‌ها پاک شدند.");
+            }
+        }
+
+        renderAll();
     </script>
 </body>
 </html>
