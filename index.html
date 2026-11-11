@@ -3,225 +3,433 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ویزیتور پرو - مدیریت فروش و مشتریان</title>
+    <title>ویزیتور پرو | مدیریت فروش و مشتریان</title>
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
+            --primary: #0284c7;
+            --primary-dark: #0369a1;
             --success: #16a34a;
             --danger: #dc2626;
             --bg: #f8fafc;
-            --card: #ffffff;
+            --card-bg: #ffffff;
             --text: #1e293b;
             --text-light: #64748b;
             --border: #e2e8f0;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-        body { background: var(--bg); color: var(--text); padding-bottom: 90px; }
-        header { background: var(--primary); color: white; padding: 16px; text-align: center; font-size: 1.25rem; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .container { padding: 16px; max-width: 600px; margin: 0 auto; }
-        .card { background: var(--card); border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid var(--border); }
-        .btn { background: var(--primary); color: white; border: none; padding: 12px 16px; border-radius: 8px; font-size: 1rem; font-weight: bold; width: 100%; cursor: pointer; text-align: center; display: inline-block; margin-top: 8px; }
-        .btn:active { background: var(--primary-dark); }
-        .btn-success { background: var(--success); }
-        .btn-danger { background: var(--danger); }
-        .nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px; box-shadow: 0 -2px 5px rgba(0,0,0,0.05); z-index: 1000; }
-        .nav-item { text-align: center; color: var(--text-light); font-size: 0.85rem; text-decoration: none; cursor: pointer; flex: 1; }
-        .nav-item.active { color: var(--primary); font-weight: bold; }
-        input, select, textarea { width: 100%; padding: 10px; margin: 6px 0 12px 0; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; }
-        .sync-box { background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px; border-radius: 8px; margin-bottom: 16px; text-align: center; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-        .stat-box { background: white; padding: 12px; border-radius: 8px; border: 1px solid var(--border); text-align: center; }
-        .stat-box h4 { font-size: 0.85rem; color: var(--text-light); }
-        .stat-box p { font-size: 1.5rem; font-weight: bold; color: var(--primary); margin-top: 4px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 10px; max-width: 600px; margin: 0 auto; }
+        header { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 12px 15px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 12px; }
+        header h1 { font-size: 18px; color: var(--primary); }
+        .nav-bar { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 5px; margin-bottom: 12px; }
+        .nav-bar button { flex: 0 0 auto; padding: 8px 12px; font-size: 13px; background: #e2e8f0; border: none; border-radius: 6px; cursor: pointer; color: var(--text); }
+        .nav-bar button.active { background: var(--primary); color: white; font-weight: bold; }
+        .card { background: var(--card-bg); padding: 15px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 12px; }
+        .card h2 { font-size: 16px; margin-bottom: 10px; color: var(--primary-dark); border-bottom: 2px solid var(--border); padding-bottom: 5px; }
+        input, select, textarea { width: 100%; padding: 10px; margin: 6px 0 12px 0; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; background: #fff; }
+        button.btn { width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        button.btn:hover { background: var(--primary-dark); }
+        button.btn-danger { background: var(--danger); }
+        .hide { display: none !important; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
+        .table th, .table td { border: 1px solid var(--border); padding: 8px; text-align: center; }
+        .table th { background: #f1f5f9; }
+        .growth-pos { color: var(--success); font-weight: bold; }
+        .growth-neg { color: var(--danger); font-weight: bold; }
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #334155; color: white; padding: 10px 20px; border-radius: 20px; font-size: 13px; z-index: 1000; transition: opacity 0.3s; }
     </style>
 </head>
 <body>
 
-    <header>ویزیتور پرو - سیستم مدیریت هوشمند</header>
+    <header>
+        <h1>ویزیتور پرو</h1>
+        <span id="dateBadge" style="font-size: 12px; color: var(--text-light);"></span>
+    </header>
 
-    <div class="container">
-        <!-- بخش همگام‌سازی ابری -->
-        <div class="sync-box">
-            <p style="margin-bottom: 8px; font-size: 0.9rem; color: #1e40af;">ارتباط با گوگل‌شیت (همگام‌سازی بین گوشی و لپ‌تاپ)</p>
-            <button class="btn btn-success" onclick="syncWithCloud()">همگام‌سازی ابری اطلاعات</button>
-        </div>
-
-        <!-- تب داشبورد -->
-        <div id="tab-home" class="tab-content active">
-            <div class="stat-grid">
-                <div class="stat-box">
-                    <h4>کل مشتریان</h4>
-                    <p id="stat-cust">0</p>
-                </div>
-                <div class="stat-box">
-                    <h4>سرنخ‌های فعال</h4>
-                    <p id="stat-leads">0</p>
-                </div>
-            </div>
-            <div class="card">
-                <h3>دسترسی سریع</h3>
-                <p style="color: var(--text-light); margin-top: 8px; font-size: 0.95rem;">برای مدیریت کامل مشتریان، محصولات و ثبت فروش از منوی پایین استفاده کنید.</p>
-            </div>
-        </div>
-
-        <!-- تب مشتریان -->
-        <div id="tab-customers" class="tab-content">
-            <div class="card">
-                <h3>افزودن مشتری جدید</h3>
-                <input type="text" id="cust-name" placeholder="نام مشتری / فروشگاه">
-                <input type="text" id="cust-phone" placeholder="شماره تماس">
-                <input type="text" id="cust-region" placeholder="منطقه (مثلاً منطقه ۹)">
-                <button class="btn" onclick="addCustomer()">ذخیره مشتری</button>
-            </div>
-            <div class="card">
-                <h3>لیست مشتریان</h3>
-                <div id="customers-list" style="margin-top: 10px; font-size: 0.95rem;"></div>
-            </div>
-        </div>
-
-        <!-- تب محصولات و فروش -->
-        <div id="tab-sales" class="tab-content">
-            <div class="card">
-                <h3>ثبت فروش / سفارش</h3>
-                <select id="sale-customer">
-                    <option value="">انتخاب مشتری...</option>
-                </select>
-                <input type="text" id="sale-product" placeholder="نام محصول (سوسیس/کالباس)">
-                <input type="number" id="sale-amount" placeholder="مبلغ (تومان)">
-                <button class="btn btn-success" onclick="addSale()">ثبت سفارش</button>
-            </div>
-            <div class="card">
-                <h3>گزارش فروش‌ها</h3>
-                <div id="sales-list" style="margin-top: 10px; font-size: 0.95rem;"></div>
-            </div>
-        </div>
-
-        <!-- تب تنظیمات و پشتیبان‌گیری -->
-        <div id="tab-settings" class="tab-content">
-            <div class="card">
-                <h3>مدیریت داده‌ها</h3>
-                <button class="btn" onclick="exportJSON()">دانلود پشتیبان محلی (JSON)</button>
-                <button class="btn btn-danger" onclick="wipeAll()" style="margin-top: 12px;">پاک کردن همه داده‌ها</button>
-            </div>
-        </div>
+    <div class="nav-bar" id="navTabs">
+        <button onclick="switchTab('home')" class="active" data-tab="home">خانه</button>
+        <button onclick="switchTab('customers')" data-tab="customers">مشتریان</button>
+        <button onclick="switchTab('leads')" data-tab="leads">سرنخ‌ها</button>
+        <button onclick="switchTab('sales')" data-tab="sales">فروش</button>
+        <button onclick="switchTab('products')" data-tab="products">محصولات</button>
+        <button onclick="switchTab('reports')" data-tab="reports">گزارش‌ها</button>
+        <button onclick="switchTab('backup')" data-tab="backup">پشتیبان</button>
     </div>
 
-    <nav class="nav">
-        <a class="nav-item active" onclick="switchTab('home', this)">داشبورد</a>
-        <a class="nav-item" onclick="switchTab('customers', this)">مشتریان</a>
-        <a class="nav-item" onclick="switchTab('sales', this)">فروش</a>
-        <a class="nav-item" onclick="switchTab('settings', this)">تنظیمات</a>
-    </nav>
+    <!-- خانه -->
+    <section id="tab-home" class="tab-content">
+        <div class="card">
+            <h2>خلاصه وضعیت</h2>
+            <p id="homeSummary">در حال بارگذاری اطلاعات...</p>
+        </div>
+    </section>
 
-    <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyZdo8vCqkFfGgw8GiYHsUP8WFAoZPWEdp6G9jfUjMafz4xYDbdLMTSy4KLgjO3fpGhPA/exec";
+    <!-- مشتریان -->
+    <section id="tab-customers" class="tab-content hide">
+        <div class="card">
+            <h2>ثبت مشتری جدید</h2>
+            <input type="text" id="cName" placeholder="نام مغازه / مشتری">
+            <input type="text" id="cPhone" placeholder="شماره تماس">
+            <input type="text" id="cRoute" placeholder="مسیر / منطقه (مثلا منطقه 9)">
+            <input type="text" id="cCompetitor" placeholder="برند رقیب">
+            <button class="btn" onclick="saveCustomer()">ذخیره مشتری</button>
+        </div>
+        <div class="card">
+            <h2>لیست مشتریان</h2>
+            <div id="customersList"></div>
+        </div>
+    </section>
 
-        let DB = JSON.parse(localStorage.getItem('vizitor_db')) || {
-            customers: [],
-            leads: [],
-            sales: []
-        };
+    <!-- سرنخ‌ها -->
+    <section id="tab-leads" class="tab-content hide">
+        <div class="card">
+            <h2>ثبت سرنخ جدید</h2>
+            <input type="text" id="lName" placeholder="نام مغازه">
+            <input type="text" id="lPhone" placeholder="تلفن">
+            <input type="text" id="lNote" placeholder="دلیل عدم خرید / یادداشت">
+            <input type="date" id="lNextDate">
+            <button class="btn" onclick="saveLead()">ثبت سرنخ</button>
+        </div>
+        <div class="card">
+            <h2>پیگیری سرنخ‌ها</h2>
+            <div id="leadsList"></div>
+        </div>
+    </section>
 
-        if(!DB.leads) DB.leads = [];
-        if(!DB.sales) DB.sales = [];
+    <!-- فروش -->
+    <section id="tab-sales" class="tab-content hide">
+        <div class="card">
+            <h2>ثبت فاکتور فروش</h2>
+            <select id="sCustomer"></select>
+            <select id="sProduct"></select>
+            <input type="number" id="sQty" placeholder="تعداد">
+            <input type="number" id="sAmount" placeholder="مبلغ کل (تومان)">
+            <button class="btn" onclick="saveSale()">ثبت فروش</button>
+        </div>
+        <div class="card">
+            <h2>فروش‌های اخیر</h2>
+            <div id="salesList"></div>
+        </div>
+    </section>
 
-        function saveLocal() {
-            localStorage.setItem('vizitor_db', JSON.stringify(DB));
-            renderAll();
-        }
+    <!-- محصولات -->
+    <section id="tab-products" class="tab-content hide">
+        <div class="card">
+            <h2>افزودن محصول</h2>
+            <input type="text" id="pName" placeholder="نام محصول">
+            <input type="number" id="pPrice" placeholder="قیمت پیش‌فرض">
+            <button class="btn" onclick="saveProduct()">ثبت محصول</button>
+        </div>
+        <div class="card">
+            <h2>لیست محصولات</h2>
+            <div id="productsList"></div>
+        </div>
+    </section>
 
-        function renderAll() {
-            document.getElementById('stat-cust').innerText = DB.customers.length;
-            document.getElementById('stat-leads').innerText = DB.leads.length;
+    <!-- گزارش‌ها -->
+    <section id="tab-reports" class="tab-content hide">
+        <div class="card">
+            <h2>ثبت عملکرد ماهانه تاریخی</h2>
+            <input type="number" id="mYear" placeholder="سال (مثلا 1405)">
+            <input type="number" id="mMonth" placeholder="ماه (1 الی 12)">
+            <input type="number" id="mAmount" placeholder="مبلغ کل فروش ماه (تومان)">
+            <button class="btn" onclick="saveMonthlyTotal()">ثبت در سوابق ماهانه</button>
+        </div>
+        <div class="card">
+            <h2>گزارش تحلیل و رشد فروش</h2>
+            <div id="reportsDisplay"></div>
+        </div>
+        <div class="card">
+            <h2>مشتریان فعال و وفادار</h2>
+            <div id="activeCustomersDisplay"></div>
+        </div>
+    </section>
 
-            // لیست مشتریان
-            let custHtml = "";
-            let selectHtml = '<option value="">انتخاب مشتری...</option>';
-            DB.customers.forEach((c, idx) => {
-                custHtml += `<div style="padding: 8px 0; border-bottom: 1px solid #f1f5f9;"><b>${c.name}</b><br><span style="color:var(--text-light)">${c.phone || ''} - ${c.region || ''}</span></div>`;
-                selectHtml += `<option value="${c.name}">${c.name}</option>`;
-            });
-            document.getElementById('customers-list').innerText = DB.customers.length ? "" : "مشتری ثبت نشده است.";
-            if(DB.customers.length) document.getElementById('customers-list').innerHTML = custHtml;
-            document.getElementById('sale-customer').innerHTML = selectHtml;
+    <!-- پشتیبان -->
+    <section id="tab-backup" class="tab-content hide">
+        <div class="card">
+            <h2>پشتیبان‌گیری و بازیابی اطلاعات</h2>
+            <button class="btn" onclick="exportBackup()" style="margin-bottom: 10px;">دانلود فایل پشتیبان (JSON)</button>
+            <input type="file" id="importFile" accept=".json" style="margin-bottom: 5px;">
+            <button class="btn" onclick="importBackup()" style="background: #0d9488; margin-bottom: 15px;">بازیابی از فایل</button>
+            <button class="btn btn-danger" onclick="wipeData()">پاکسازی کامل داده‌ها</button>
+        </div>
+    </section>
 
-            // لیست فروش
-            let salesHtml = "";
-            DB.sales.forEach(s => {
-                salesHtml += `<div style="padding: 8px 0; border-bottom: 1px solid #f1f5f9;"><b>${s.customer}</b>: ${s.product} (${s.amount} تومان)</div>`;
-            });
-            document.getElementById('sales-list').innerHTML = salesHtml || "فروشی ثبت نشده است.";
-        }
+    <div id="toast" class="toast hide">پیام</div>
 
-        function addCustomer() {
-            let name = document.getElementById('cust-name').value.trim();
-            let phone = document.getElementById('cust-phone').value.trim();
-            let region = document.getElementById('cust-region').value.trim();
-            if(!name) { alert("لطفاً نام مشتری را وارد کنید."); return; }
-            DB.customers.push({name, phone, region, created: new Date().toISOString()});
-            saveLocal();
-            document.getElementById('cust-name').value = '';
-            document.getElementById('cust-phone').value = '';
-            document.getElementById('cust-region').value = '';
-            alert("مشتری با موفقیت ثبت شد!");
-        }
+<script>
+let DB = JSON.parse(localStorage.getItem('vizitor_db')) || {
+    customers: [],
+    leads: [],
+    products: [],
+    sales: [],
+    monthlyTotals: []
+};
 
-        function addSale() {
-            let customer = document.getElementById('sale-customer').value;
-            let product = document.getElementById('sale-product').value.trim();
-            let amount = document.getElementById('sale-amount').value.trim();
-            if(!customer || !product) { alert("لطفاً مشتری و محصول را مشخص کنید."); return; }
-            DB.sales.push({customer, product, amount, date: new Date().toISOString()});
-            saveLocal();
-            document.getElementById('sale-product').value = '';
-            document.getElementById('sale-amount').value = '';
-            alert("فروش با موفقیت ثبت شد!");
-        }
+function saveDB() {
+    localStorage.setItem('vizitor_db', JSON.stringify(DB));
+}
 
-        function switchTab(tabId, el) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById('tab-' + tabId).classList.add('active');
-            el.classList.add('active');
-        }
+function showToast(msg) {
+    let t = document.getElementById('toast');
+    t.innerText = msg;
+    t.classList.remove('hide');
+    setTimeout(() => t.classList.add('hide'), 2500);
+}
 
-        async function syncWithCloud() {
-            alert("در حال همگام‌سازی ابری...");
-            try {
-                await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(DB)
-                });
-                alert("همگام‌سازی با موفقیت انجام شد!");
-            } catch (e) {
-                alert("خطا در ارتباط: " + e.message);
+function switchTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hide'));
+    document.querySelectorAll('.nav-bar button').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + tabId).classList.remove('hide');
+    document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+    renderAll();
+}
+
+function uid() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+}
+
+// تاریخ قمری و شمسی نمایشی
+function updateDates() {
+    try {
+        let optionsShamsi = { year: 'numeric', month: 'long', day: 'numeric', calendar: 'persian' };
+        let optionsQamari = { year: 'numeric', month: 'long', day: 'numeric', calendar: 'islamic-umalqura' };
+        let shamsi = new Intl.DateTimeFormat('fa-IR', optionsShamsi).format(new Date());
+        let qamari = new Intl.DateTimeFormat('fa-IR', optionsQamari).format(new Date());
+        document.getElementById('dateBadge').innerText = `قمری: ${qamari} | شمسی: ${shamsi}`;
+    } catch(e) {
+        document.getElementById('dateBadge').innerText = "منطقه: مناطق ۹ و ۱۰";
+    }
+}
+
+// ثبت‌ها
+function saveCustomer() {
+    let name = document.getElementById('cName').value.trim();
+    if(!name) { showToast('نام مشتری را وارد کنید'); return; }
+    DB.customers.push({
+        id: uid(),
+        name: name,
+        phone: document.getElementById('cPhone').value.trim(),
+        route: document.getElementById('cRoute').value.trim(),
+        competitor: document.getElementById('cCompetitor').value.trim(),
+        created: new Date().toISOString()
+    });
+    saveDB();
+    document.getElementById('cName').value = '';
+    document.getElementById('cPhone').value = '';
+    document.getElementById('cRoute').value = '';
+    document.getElementById('cCompetitor').value = '';
+    showToast('مشتری ذخیره شد');
+    renderAll();
+}
+
+function saveLead() {
+    let name = document.getElementById('lName').value.trim();
+    if(!name) { showToast('نام مغازه را وارد کنید'); return; }
+    DB.leads.push({
+        id: uid(),
+        name: name,
+        phone: document.getElementById('lPhone').value.trim(),
+        note: document.getElementById('lNote').value.trim(),
+        nextDate: document.getElementById('lNextDate').value,
+        created: new Date().toISOString()
+    });
+    saveDB();
+    document.getElementById('lName').value = '';
+    document.getElementById('lPhone').value = '';
+    document.getElementById('lNote').value = '';
+    document.getElementById('lNextDate').value = '';
+    showToast('سرنخ ثبت شد');
+    renderAll();
+}
+
+function saveProduct() {
+    let name = document.getElementById('pName').value.trim();
+    if(!name) { showToast('نام محصول را وارد کنید'); return; }
+    DB.products.push({
+        id: uid(),
+        name: name,
+        price: Number(document.getElementById('pPrice').value) || 0
+    });
+    saveDB();
+    document.getElementById('pName').value = '';
+    document.getElementById('pPrice').value = '';
+    showToast('محصول ثبت شد');
+    renderAll();
+}
+
+function saveSale() {
+    let customerId = document.getElementById('sCustomer').value;
+    let productId = document.getElementById('sProduct').value;
+    let qty = Number(document.getElementById('sQty').value) || 1;
+    let amount = Number(document.getElementById('sAmount').value) || 0;
+    if(!amount) { showToast('مبلغ فروش را وارد کنید'); return; }
+
+    DB.sales.push({
+        id: uid(),
+        customerId: customerId,
+        productId: productId,
+        qty: qty,
+        amount: amount,
+        created: new Date().toISOString()
+    });
+    saveDB();
+    document.getElementById('sAmount').value = '';
+    document.getElementById('sQty').value = '';
+    showToast('فروش ثبت شد');
+    renderAll();
+}
+
+function saveMonthlyTotal() {
+    let year = Number(document.getElementById('mYear').value);
+    let month = Number(document.getElementById('mMonth').value);
+    let amount = Number(document.getElementById('mAmount').value);
+    if(!year || !month || !amount) { showToast('همه فیلدها را پر کنید'); return; }
+
+    DB.monthlyTotals.push({ id: uid(), year, month, amount });
+    saveDB();
+    document.getElementById('mYear').value = '';
+    document.getElementById('mMonth').value = '';
+    document.getElementById('mAmount').value = '';
+    showToast('عملکرد ماهانه ثبت شد');
+    renderAll();
+}
+
+function exportBackup() {
+    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(DB, null, 2));
+    let dlAnchor = document.createElement('a');
+    dlAnchor.setAttribute("href", dataStr);
+    dlAnchor.setAttribute("download", "vizitor-backup-" + new Date().toISOString().slice(0,10) + ".json");
+    document.body.appendChild(dlAnchor);
+    dlAnchor.click();
+    dlAnchor.remove();
+}
+
+function importBackup() {
+    let fileInput = document.getElementById('importFile');
+    if(!fileInput.files.length) { showToast('لطفا فایل JSON را انتخاب کنید'); return; }
+    let reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            let imported = JSON.parse(e.target.result);
+            if(imported && imported.customers) {
+                DB = imported;
+                if(!DB.monthlyTotals) DB.monthlyTotals = [];
+                if(!DB.leads) DB.leads = [];
+                if(!DB.products) DB.products = [];
+                if(!DB.sales) DB.sales = [];
+                saveDB();
+                showToast('بازیابی با موفقیت انجام شد');
+                renderAll();
+            } else {
+                showToast('فرمت فایل نامعتبر است');
             }
+        } catch(err) {
+            showToast('خطا در خواندن فایل');
         }
+    };
+    reader.readAsText(fileInput.files[0]);
+}
 
-        function exportJSON() {
-            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(DB));
-            let dlAnchor = document.createElement('a');
-            dlAnchor.setAttribute("href", dataStr);
-            dlAnchor.setAttribute("download", "vizitor-backup.json");
-            document.body.appendChild(dlAnchor);
-            dlAnchor.click();
-            dlAnchor.remove();
-        }
-
-        function wipeAll() {
-            if(confirm("آیا مطمئن هستید که می‌خواهید همه داده‌ها را پاک کنید؟")) {
-                DB = { customers: [], leads: [], sales: [] };
-                saveLocal();
-                alert("داده‌ها پاک شدند.");
-            }
-        }
-
+function wipeData() {
+    if(confirm('آیا از پاکسازی کامل اطلاعات مطمئن هستید؟')) {
+        DB = { customers: [], leads: [], products: [], sales: [], monthlyTotals: [] };
+        saveDB();
+        showToast('اطلاعات پاک شد');
         renderAll();
-    </script>
+    }
+}
+
+// رندر صفحه
+function renderAll() {
+    updateDates();
+
+    // خانه
+    let totalSalesAmt = DB.sales.reduce((sum, s) => sum + Number(s.amount), 0);
+    document.getElementById('homeSummary').innerHTML = `
+        مشتریان ثبت‌شده: <b>${DB.customers.length}</b><br>
+        سرنخ‌ها: <b>${DB.leads.length}</b><br>
+        محصولات: <b>${DB.products.length}</b><br>
+        فاکتورهای ثبت شده: <b>${DB.sales.length}</b><br>
+        مجموع فروش ثبت‌شده: <b>${totalSalesAmt.toLocaleString()} تومان</b>
+    `;
+
+    // لیست مشتریان
+    let cHtml = `<table class="table"><tr><th>نام</th><th>تلفن</th><th>مسیر</th><th>رقیب</th></tr>`;
+    DB.customers.forEach(c => {
+        cHtml += `<tr><td>${c.name}</td><td>${c.phone || '-'}</td><td>${c.route || '-'}</td><td>${c.competitor || '-'}</td></tr>`;
+    });
+    cHtml += `</table>`;
+    document.getElementById('customersList').innerHTML = DB.customers.length ? cHtml : '<p>مشتری ثبت نشده است.</p>';
+
+    // انتخاب مشتری و محصول در فرم فروش
+    let custOpts = '<option value="">انتخاب مشتری...</option>';
+    DB.customers.forEach(c => { custOpts += `<option value="${c.id}">${c.name}</option>`; });
+    document.getElementById('sCustomer').innerHTML = custOpts;
+
+    let prodOpts = '<option value="">انتخاب محصول...</option>';
+    DB.products.forEach(p => { prodOpts += `<option value="${p.id}">${p.name} (${p.price} ت)</option>`; });
+    document.getElementById('sProduct').innerHTML = prodOpts;
+
+    // سرنخ‌ها
+    let lHtml = `<table class="table"><tr><th>مغازه</th><th>تلفن</th><th>یادداشت</th><th>تاریخ پیگیری</th></tr>`;
+    DB.leads.forEach(l => {
+        lHtml += `<tr><td>${l.name}</td><td>${l.phone || '-'}</td><td>${l.note || '-'}</td><td>${l.nextDate || '-'}</td></tr>`;
+    });
+    lHtml += `</table>`;
+    document.getElementById('leadsList').innerHTML = DB.leads.length ? lHtml : '<p>سرنخ ثبت نشده است.</p>';
+
+    // فروش‌ها
+    let sHtml = `<table class="table"><tr><th>مشتری</th><th>مبلغ (تومان)</th><th>تعداد</th></tr>`;
+    DB.sales.slice().reverse().forEach(s => {
+        let cObj = DB.customers.find(x => x.id === s.customerId);
+        sHtml += `<tr><td>${cObj ? cObj.name : 'ناشناس'}</td><td>${Number(s.amount).toLocaleString()}</td><td>${s.qty || 1}</td></tr>`;
+    });
+    sHtml += `</table>`;
+    document.getElementById('salesList').innerHTML = DB.sales.length ? sHtml : '<p>فروشی ثبت نشده است.</p>';
+
+    // محصولات
+    let pHtml = `<table class="table"><tr><th>نام محصول</th><th>قیمت پیش‌فرض</th></tr>`;
+    DB.products.forEach(p => {
+        pHtml += `<tr><td>${p.name}</td><td>${Number(p.price).toLocaleString()} تومان</td></tr>`;
+    });
+    pHtml += `</table>`;
+    document.getElementById('productsList').innerHTML = DB.products.length ? pHtml : '<p>محصولی ثبت نشده است.</p>';
+
+    // گزارش‌ها و رشد ماهانه
+    let rHtml = `<table class="table"><tr><th>سال/ماه</th><th>مبلغ (تومان)</th><th>درصد رشد</th></tr>`;
+    let sortedMonthly = [...DB.monthlyTotals].sort((a,b) => a.year - b.year || a.month - b.month);
+    let prevAmt = null;
+    sortedMonthly.forEach(m => {
+        let growthText = "-";
+        if(prevAmt !== null && prevAmt > 0) {
+            let growth = ((m.amount - prevAmt) / prevAmt) * 100;
+            let cls = growth >= 0 ? "growth-pos" : "growth-neg";
+            growthText = `<span class="${cls}">${growth.toFixed(1)}%</span>`;
+        }
+        prevAmt = m.amount;
+        rHtml += `<tr><td>${m.year}/${m.month}</td><td>${Number(m.amount).toLocaleString()}</td><td>${growthText}</td></tr>`;
+    });
+    rHtml += `</table>`;
+    document.getElementById('reportsDisplay').innerHTML = sortedMonthly.length ? rHtml : '<p>سوابق ماهانه‌ای ثبت نشده است.</p>';
+
+    // مشتریان فعال
+    let custSalesCount = {};
+    DB.sales.forEach(s => {
+        if(!s.customerId) return;
+        custSalesCount[s.customerId] = (custSalesCount[s.customerId] || 0) + Number(s.amount);
+    });
+    let sortedActive = Object.entries(custSalesCount).sort((a,b) => b[1] - a[1]);
+    let actHtml = `<table class="table"><tr><th>رتبه</th><th>نام مشتری</th><th>مجموع خرید (تومان)</th></tr>`;
+    sortedActive.forEach((item, idx) => {
+        let cObj = DB.customers.find(x => x.id === item[0]);
+        actHtml += `<tr><td>${idx+1}</td><td>${cObj ? cObj.name : 'ناشناس'}</td><td>${item[1].toLocaleString()}</td></tr>`;
+    });
+    actHtml += `</table>`;
+    document.getElementById('activeCustomersDisplay').innerHTML = sortedActive.length ? actHtml : '<p>هنوز فروشی ثبت نشده تا مشتریان فعال رتبه‌بندی شوند.</p>';
+}
+
+renderAll();
+</script>
 </body>
 </html>
